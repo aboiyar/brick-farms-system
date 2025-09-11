@@ -1,0 +1,14 @@
+[Unit]
+Description=BrickFarm FastAPI
+After=network.target
+
+[Service]
+User=ubuntu
+WorkingDirectory=/opt/brickfarm/backend
+Environment="PYTHONPATH=/opt/brickfarm/backend"
+EnvironmentFile=/opt/brickfarm/backend/.env
+ExecStart=/opt/brickfarm/venv/bin/uvicorn app.main:app --host 0.0.0.0 --port 8080 --proxy-headers --forwarded-allow-ips="*"
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
