@@ -26,6 +26,15 @@ dependencies = [
   "structlog==24.1.0"
 ]
 
+# Add reporting and forecasting libs
+dependencies_extra = [
+  "reportlab==4.1.4",
+  "statsmodels==0.14.0"
+]
+
+[tool.pytest.ini_options]
+markers = ["asyncio"]
+
 [tool.alembic]
 script_location = "app/db/migrations"
 sqlalchemy_url = "postgresql+psycopg://{env:DB_USER}:{env:DB_PASS}@{env:DB_HOST}:{env:DB_PORT}/{env:DB_NAME}"
