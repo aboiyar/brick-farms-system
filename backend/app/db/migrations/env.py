@@ -7,10 +7,15 @@ import os, sys
 sys.path.append(os.path.join(os.path.dirname(__file__), "../../.."))
 
 from app.db.base import Base
-from app.models import tenant, user, farm, crop, sensor, inventory, finance, audit  # import models!
+# import all models package so Alembic can detect metadata (app/models/__init__.py exposes them)
+import app.models
 
 config = context.config
 target_metadata = Base.metadata
+# Allow DATABASE_URL env var to override alembic.ini sqlalchemy.url
+DATABASE_URL = os.getenv("DATABASE_URL")
+if DATABASE_URL:
+    config.set_main_option("sqlalchemy.url", DATABASE_URL)
 
 def run_migrations_offline():
     url = config.get_main_option("sqlalchemy.url")
