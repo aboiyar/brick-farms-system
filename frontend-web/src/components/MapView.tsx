@@ -12,7 +12,7 @@ import "ol/ol.css";
 import "../styles/map.css";
 
 interface MapViewProps {
-  tasks: any; // GeoJSON FeatureCollection
+  tasks?: any; // GeoJSON FeatureCollection
 }
 
 export default function MapView({ tasks }: MapViewProps) {

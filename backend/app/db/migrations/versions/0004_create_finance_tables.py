@@ -4,7 +4,7 @@ from sqlalchemy.dialects import postgresql
 
 # revision identifiers
 revision = "0004_create_finance_tables"
-down_revision = "0001_init_core"
+down_revision = "0003_create_sensors"
 branch_labels = None
 depends_on = None
 

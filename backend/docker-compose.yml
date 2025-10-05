@@ -3,8 +3,8 @@ services:
   db:
     image: timescale/timescaledb:latest-pg14
     environment:
-      POSTGRES_USER: brick
-      POSTGRES_PASSWORD: brickpass
+      POSTGRES_USER: brickfarm
+      POSTGRES_PASSWORD: brickfarm_pass
       POSTGRES_DB: brickfarm
     ports:
       - "5432:5432"

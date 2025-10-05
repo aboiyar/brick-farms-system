@@ -1,20 +1,41 @@
-import React, { useEffect, useState } from "react";
-import { fetchTasksWithGeom } from "./api/tasks";
-import MapView from "./components/MapView";
+import React from 'react'
+import { BrowserRouter, Routes, Route, Link } from 'react-router-dom'
+import MapView from './components/MapView'
 
-function App() {
-  const [tasks, setTasks] = useState<any>(null);
+const Home = () => (
+  <div>
+    <h2>BrickFarm Task Map</h2>
+    <MapView />
+  </div>
+)
 
-  useEffect(() => {
-    fetchTasksWithGeom().then(setTasks);
-  }, []);
+const Login = () => (
+  <div>
+    <h3>Login (skeleton)</h3>
+    <p>Form goes here</p>
+  </div>
+)
 
+const Register = () => (
+  <div>
+    <h3>Register (skeleton)</h3>
+    <p>Form goes here</p>
+  </div>
+)
+
+function App(){
   return (
-    <div>
-      <h2>BrickFarm Task Map</h2>
-      <MapView tasks={tasks} />
-    </div>
-  );
+    <BrowserRouter>
+      <nav>
+        <Link to="/">Home</Link> | <Link to="/login">Login</Link> | <Link to="/register">Register</Link>
+      </nav>
+      <Routes>
+        <Route path="/" element={<Home/>} />
+        <Route path="/login" element={<Login/>} />
+        <Route path="/register" element={<Register/>} />
+      </Routes>
+    </BrowserRouter>
+  )
 }
 
-export default App;
+export default App

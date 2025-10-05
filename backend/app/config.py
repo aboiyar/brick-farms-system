@@ -30,7 +30,8 @@ class Settings(BaseSettings):
     CELERY_BACKEND: str = os.getenv("CELERY_BACKEND", REDIS_URL)
 
     DEFAULT_PLAN: str = "enterprise"
-    CORS_ORIGINS: List[str] = []
+    # Allow local frontend dev server by default for developer workflows
+    CORS_ORIGINS: List[str] = ["http://localhost:5173"]
 
     class Config:
         env_file = ".env"

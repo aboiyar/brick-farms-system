@@ -1,0 +1,71 @@
+name: Backend Integration Tests
+
+on:
+  push:
+    branches: [ master, main ]
+  pull_request:
+    branches: [ master, main ]
+  workflow_dispatch: {}
+
+jobs:
+  integration:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: timescale/timescaledb:latest-pg14
+        env:
+          POSTGRES_USER: brickfarm
+          POSTGRES_PASSWORD: brickfarm_pass
+          POSTGRES_DB: brickfarm
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U $${POSTGRES_USER}"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+      redis:
+        image: redis:7
+        ports:
+          - 6379:6379
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install system deps
+        run: sudo apt-get update && sudo apt-get install -y build-essential libpq-dev
+
+      - name: Install Python deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r backend/requirements.txt || true
+          pip install ./backend
+
+      - name: Wait for Postgres
+        env:
+          POSTGRES_USER: brickfarm
+        run: |
+          until pg_isready -h localhost -p 5432 -U $${POSTGRES_USER}; do sleep 1; done
+
+      - name: Run alembic migrations
+        env:
+          DATABASE_URL: postgresql://brickfarm:brickfarm_pass@localhost:5432/brickfarm
+        run: |
+          export DATABASE_URL=$$DATABASE_URL
+          alembic -c backend/alembic.ini upgrade head
+
+      - name: Seed DB
+        run: |
+          psql "postgresql://brickfarm:brickfarm_pass@localhost:5432/brickfarm" -f backend/infra/scripts/seed_reports.sql || true
+
+      - name: Run tests
+        env:
+          DATABASE_URL: postgresql://brickfarm:brickfarm_pass@localhost:5432/brickfarm
+        run: |
+          export DATABASE_URL=$$DATABASE_URL
+          pytest -q
