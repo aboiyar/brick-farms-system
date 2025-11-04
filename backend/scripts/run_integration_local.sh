@@ -29,7 +29,8 @@ fi
 . .venv/bin/activate
 python -m pip install --upgrade pip setuptools wheel
 pip install -r requirements.txt
-pip install -e .
+# Try editable install; if it fails due to pyproject issues, continue and run tests with PYTHONPATH=.
+pip install -e . || echo "editable install failed, continuing with PYTHONPATH=."
 
 echo "Running alembic migrations"
 export DATABASE_URL="postgresql://$POSTGRES_USER:$POSTGRES_PASSWORD@127.0.0.1:$POSTGRES_PORT/$POSTGRES_DB"
