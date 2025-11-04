@@ -1,10 +1,12 @@
 version: '3.8'
 services:
   db:
-    # Use a TimescaleDB image variant that includes PostGIS to satisfy migrations
-    # Try the timescale maintained image with postgis support. If this tag isn't
-    # available the pull will fail quickly and we'll iterate to another tag.
-    image: timescale/timescaledb-postgis:latest-pg14
+    # Build a local image that layers PostGIS on top of the TimescaleDB base so
+    # migrations can create both extensions. This avoids relying on an external
+    # pre-built image tag which may not be available.
+    build:
+      context: ./docker/postgis-timescale
+      dockerfile: Dockerfile
     environment:
       POSTGRES_USER: brickfarm
       POSTGRES_PASSWORD: brickfarm_pass
