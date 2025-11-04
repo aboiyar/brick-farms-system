@@ -7,7 +7,8 @@ services:
       POSTGRES_PASSWORD: brickfarm_pass
       POSTGRES_DB: brickfarm
     ports:
-      - "5432:5432"
+      # Map container port 5432 to host 5433 to avoid colliding with a host postgres on 5432
+      - "5433:5432"
     volumes:
       - db_data:/var/lib/postgresql/data
     healthcheck:
