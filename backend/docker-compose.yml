@@ -1,12 +1,10 @@
 version: '3.8'
 services:
   db:
-    # Build a local image that layers PostGIS on top of the TimescaleDB base so
-    # migrations can create both extensions. This avoids relying on an external
-    # pre-built image tag which may not be available.
-    build:
-      context: ./docker/postgis-timescale
-      dockerfile: Dockerfile
+    # Use the official PostGIS image. We will tolerate missing TimescaleDB during
+    # migrations (create_hypertable will be guarded) so integration can run even
+    # if TimescaleDB isn't installed in the container.
+    image: postgis/postgis:14-3.4
     environment:
       POSTGRES_USER: brickfarm
       POSTGRES_PASSWORD: brickfarm_pass

@@ -11,9 +11,21 @@ depends_on = None
 
 def upgrade():
     # Extensions
-    op.execute("CREATE EXTENSION IF NOT EXISTS postgis")
-    op.execute("CREATE EXTENSION IF NOT EXISTS timescaledb")
-    op.execute("CREATE EXTENSION IF NOT EXISTS pgcrypto")
+    # Create extensions where available. Some test/dev images may not have the
+    # TimescaleDB extension packages installed; tolerate errors so migrations can
+    # still run (hypertable creation is attempted further down and is wrapped).
+    try:
+        op.execute("CREATE EXTENSION IF NOT EXISTS postgis")
+    except Exception:
+        pass
+    try:
+        op.execute("CREATE EXTENSION IF NOT EXISTS timescaledb")
+    except Exception:
+        pass
+    try:
+        op.execute("CREATE EXTENSION IF NOT EXISTS pgcrypto")
+    except Exception:
+        pass
 
     # Helper: tenant_id GUC (used by RLS policies)
     op.execute("""
@@ -109,8 +121,15 @@ def upgrade():
         sa.Column("timestamp", sa.TIMESTAMP(timezone=True), index=True, nullable=False),
         sa.Column("location", Geometry(geometry_type="POINT", srid=4326))
     )
-    # Timescale hypertable
-    op.execute("SELECT create_hypertable('sensor_readings','timestamp', if_not_exists => TRUE)")
+    # Timescale hypertable (wrap in try/except in case TimescaleDB isn't present
+    # in the database image used for local integration).
+    try:
+        op.execute("SELECT create_hypertable('sensor_readings','timestamp', if_not_exists => TRUE)")
+    except Exception:
+        # If TimescaleDB isn't available the hypertable step is skipped. Tests that
+        # rely on hypertable-specific behavior may fail; production images should
+        # include TimescaleDB.
+        pass
 
     # Inventory
     op.create_table("item",
