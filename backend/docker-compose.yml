@@ -1,9 +1,9 @@
 version: '3.8'
 services:
   db:
-    # Use the official PostGIS image. We will tolerate missing TimescaleDB during
-    # migrations (create_hypertable will be guarded) so integration can run even
-    # if TimescaleDB isn't installed in the container.
+    # Use the official PostGIS image for local development. TimescaleDB is
+    # optional for local runs; migrations will skip hypertable creation if it
+    # isn't present.
     image: postgis/postgis:14-3.4
     environment:
       POSTGRES_USER: brickfarm
@@ -13,7 +13,10 @@ services:
       # Map container port 5432 to host 5433 to avoid colliding with a host postgres on 5432
       - "5433:5432"
     volumes:
-      - db_data:/var/lib/postgresql/data
+      # Use a fresh named volume for local dev to avoid clashes with any
+      # existing database clusters that may require extensions not present
+      # in this image. This preserves the original `db_data` volume.
+      - db_data_dev:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER}" ]
       interval: 5s
@@ -28,3 +31,4 @@ services:
 
 volumes:
   db_data:
+  db_data_dev:

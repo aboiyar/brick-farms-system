@@ -2,30 +2,54 @@ from alembic import op
 import sqlalchemy as sa
 from geoalchemy2.types import Geometry
 from sqlalchemy.dialects import postgresql
-
-# revision identifiers
-revision = "0001_init_core"
-down_revision = None
-branch_labels = None
-depends_on = None
-
-def upgrade():
-    # Extensions
+import os
     # Create extensions where available. Some test/dev images may not have the
-    # TimescaleDB extension packages installed; tolerate errors so migrations can
-    # still run (hypertable creation is attempted further down and is wrapped).
+    # TimescaleDB extension packages installed; we allow skipping timescaledb
+    # during local development by setting the SKIP_TIMESCALE env var. This
+    # prevents CREATE EXTENSION from aborting the surrounding transaction when
+    # the extension control file is missing.
     try:
         op.execute("CREATE EXTENSION IF NOT EXISTS postgis")
     except Exception:
         pass
-    try:
-        op.execute("CREATE EXTENSION IF NOT EXISTS timescaledb")
-    except Exception:
-        pass
+
+    if not os.environ.get('SKIP_TIMESCALE'):
+        try:
+            op.execute("CREATE EXTENSION IF NOT EXISTS timescaledb")
+        except Exception:
+            # If TimescaleDB isn't available the error is ignored and the
+            # migration continues. However, some database images won't include
+            # the extension; for local dev set SKIP_TIMESCALE=1 to skip this
+            # step entirely.
+            pass
+
     try:
         op.execute("CREATE EXTENSION IF NOT EXISTS pgcrypto")
     except Exception:
         pass
+        # Try to create extensions where available. Run as a PL/pgSQL DO block
+        # so errors (for missing extension control files) are handled inside the
+        # database and do not abort the outer transaction. This allows migrations
+        # to proceed even when TimescaleDB isn't installed in the image.
+        op.execute("""DO $$
+BEGIN
+    BEGIN
+        CREATE EXTENSION IF NOT EXISTS postgis;
+    EXCEPTION WHEN OTHERS THEN
+        -- ignore
+    END;
+    BEGIN
+        CREATE EXTENSION IF NOT EXISTS timescaledb;
+    EXCEPTION WHEN OTHERS THEN
+        -- ignore
+    END;
+    BEGIN
+        CREATE EXTENSION IF NOT EXISTS pgcrypto;
+    EXCEPTION WHEN OTHERS THEN
+        -- ignore
+    END;
+END;
+$$;""")
 
     # Helper: tenant_id GUC (used by RLS policies)
     op.execute("""
@@ -123,13 +147,13 @@ def upgrade():
     )
     # Timescale hypertable (wrap in try/except in case TimescaleDB isn't present
     # in the database image used for local integration).
-    try:
-        op.execute("SELECT create_hypertable('sensor_readings','timestamp', if_not_exists => TRUE)")
-    except Exception:
-        # If TimescaleDB isn't available the hypertable step is skipped. Tests that
-        # rely on hypertable-specific behavior may fail; production images should
-        # include TimescaleDB.
-        pass
+    # Create hypertable only when TimescaleDB is present and not skipped.
+    if not os.environ.get('SKIP_TIMESCALE'):
+        try:
+            op.execute("SELECT create_hypertable('sensor_readings','timestamp', if_not_exists => TRUE)")
+        except Exception:
+            # If TimescaleDB isn't available the hypertable step is skipped.
+            pass
 
     # Inventory
     op.create_table("item",
