@@ -1,6 +1,6 @@
-# 🌾 BrickFarm System  
+# 🌾 BrickFarms System  
 **Smart Farming. Simplified. Powered by BrickServers NG Limited.**  
-Website: [https://brickfarm.ng](https://brickfarm.ng)  
+Website: [https://brickfarms.ng](https://brickfarms.ng)  
 Corporate page: [https://farm.brickservers.ng](https://farm.brickservers.ng)
 
 ---
@@ -14,7 +14,7 @@ It combines:
 - 📱 **An upcoming Android app** (for field workers and offline monitoring).  
 - ☁️ **A backend engine** powered by **FastAPI**, **PostGIS**, and **AI analytics**.  
 
-BrickFarm helps users **plan, track, and predict farm performance** — from planting to harvest — while keeping operations transparent for investors and compliant with global environmental standards.
+BrickFarms helps users **plan, track, and predict farm performance** — from planting to harvest — while keeping operations transparent for investors and compliant with global environmental standards.
 
 ---
 
