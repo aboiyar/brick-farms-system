@@ -88,8 +88,14 @@ wait_for_db(){
 
 run_migrations(){
   echoinfo "Running Alembic migrations inside backend container..."
-  # This will run alembic using the backend image/container environment
-  ${DOCKER_COMPOSE_CMD} -f "$COMPOSE_FILE" run --rm backend python3 -m alembic upgrade head
+  # Prefer using the service hostname 'db' inside compose; construct a DATABASE_URL and pass it to the run
+  local db_user=${DB_USER:-brickfarm}
+  local db_pass=${DB_PASS:-brickfarm_pass}
+  local db_name=${DB_NAME:-brickfarm}
+  local db_host=db
+  local db_port=5432
+  local database_url="postgresql://${db_user}:${db_pass}@${db_host}:${db_port}/${db_name}"
+  ${DOCKER_COMPOSE_CMD} -f "$COMPOSE_FILE" run --rm -e DATABASE_URL="$database_url" backend python3 -m alembic upgrade head
 }
 
 run_seed(){
