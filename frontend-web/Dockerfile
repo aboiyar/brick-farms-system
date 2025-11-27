@@ -8,7 +8,7 @@ RUN if [ -f yarn.lock ]; then \
       npm install -g yarn; \
       yarn install --frozen-lockfile; \
     else \
-      npm ci; \
+      npm install --legacy-peer-deps; \
     fi
 
 # Copy sources and build
