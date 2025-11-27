@@ -23,6 +23,8 @@ COPY requirements.txt ./requirements.txt
 RUN python -m pip install --upgrade pip \
  && pip install --no-index --find-links=/wheels -r requirements.txt \
  && pip install gunicorn uvloop
+# Ensure psycopg2 is available for Alembic/SQLAlchemy legacy dialect imports
+RUN python -m pip install psycopg2-binary
 
 # Copy application code
 COPY . ./
