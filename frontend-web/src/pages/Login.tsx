@@ -1,6 +1,8 @@
 import React, { useState } from 'react'
 import { login, storeToken } from '../api/auth'
 import { useNavigate } from 'react-router-dom'
+import Input from '../components/ui/Input'
+import Button from '../components/ui/Button'
 
 export default function LoginPage(){
   const [email,setEmail]=useState('')
@@ -21,17 +23,19 @@ export default function LoginPage(){
   return (
     <div>
       <h3>Login</h3>
-      <form onSubmit={submit}>
-        <div>
+      <form onSubmit={submit} style={{maxWidth:420}}>
+        <div style={{marginBottom:8}}>
           <label>Email</label>
-          <input value={email} onChange={e=>setEmail(e.target.value)} />
+          <Input value={email} onChange={e=>setEmail(e.target.value)} />
         </div>
-        <div>
+        <div style={{marginBottom:8}}>
           <label>Password</label>
-          <input type="password" value={password} onChange={e=>setPassword(e.target.value)} />
+          <Input type="password" value={password} onChange={e=>setPassword(e.target.value)} />
         </div>
-        <button type="submit">Login</button>
-        {error && <div style={{color:'red'}}>{error}</div>}
+        <div style={{display:'flex',gap:8}}>
+          <Button type="submit">Login</Button>
+        </div>
+        {error && <div style={{color:'red',marginTop:8}}>{error}</div>}
       </form>
     </div>
   )

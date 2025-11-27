@@ -1,6 +1,8 @@
 import React, { useState } from 'react'
 import { signup, storeToken } from '../api/auth'
 import { useNavigate } from 'react-router-dom'
+import Input from '../components/ui/Input'
+import Button from '../components/ui/Button'
 
 export default function RegisterPage(){
   const [tenant,setTenant]=useState('')
@@ -22,21 +24,23 @@ export default function RegisterPage(){
   return (
     <div>
       <h3>Register</h3>
-      <form onSubmit={submit}>
-        <div>
+      <form onSubmit={submit} style={{maxWidth:420}}>
+        <div style={{marginBottom:8}}>
           <label>Tenant name</label>
-          <input value={tenant} onChange={e=>setTenant(e.target.value)} />
+          <Input value={tenant} onChange={e=>setTenant(e.target.value)} />
         </div>
-        <div>
+        <div style={{marginBottom:8}}>
           <label>Email</label>
-          <input value={email} onChange={e=>setEmail(e.target.value)} />
+          <Input value={email} onChange={e=>setEmail(e.target.value)} />
         </div>
-        <div>
+        <div style={{marginBottom:8}}>
           <label>Password</label>
-          <input type="password" value={password} onChange={e=>setPassword(e.target.value)} />
+          <Input type="password" value={password} onChange={e=>setPassword(e.target.value)} />
         </div>
-        <button type="submit">Register</button>
-        {error && <div style={{color:'red'}}>{error}</div>}
+        <div style={{display:'flex',gap:8}}>
+          <Button type="submit">Register</Button>
+        </div>
+        {error && <div style={{color:'red',marginTop:8}}>{error}</div>}
       </form>
     </div>
   )

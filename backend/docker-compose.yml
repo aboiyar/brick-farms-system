@@ -1,15 +1,22 @@
 version: '3.8'
 services:
   db:
-    image: timescale/timescaledb:latest-pg14
+    # Use the official PostGIS image for local development. TimescaleDB is
+    # optional for local runs; migrations will skip hypertable creation if it
+    # isn't present.
+    image: postgis/postgis:14-3.4
     environment:
       POSTGRES_USER: brickfarm
       POSTGRES_PASSWORD: brickfarm_pass
       POSTGRES_DB: brickfarm
     ports:
-      - "5432:5432"
+      # Map container port 5432 to host 5433 to avoid colliding with a host postgres on 5432
+      - "5433:5432"
     volumes:
-      - db_data:/var/lib/postgresql/data
+      # Use a fresh named volume for local dev to avoid clashes with any
+      # existing database clusters that may require extensions not present
+      # in this image. This preserves the original `db_data` volume.
+      - db_data_dev:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER}" ]
       interval: 5s
@@ -19,7 +26,9 @@ services:
   redis:
     image: redis:7
     ports:
-      - "6379:6379"
+      # Map container redis port 6379 to host 6380 to avoid colliding with host redis
+      - "6380:6379"
 
 volumes:
   db_data:
+  db_data_dev:

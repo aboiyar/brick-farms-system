@@ -15,6 +15,7 @@ docker compose up -d
 POSTGRES_USER=${POSTGRES_USER:-brickfarm}
 POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-brickfarm_pass}
 POSTGRES_DB=${POSTGRES_DB:-brickfarm}
+POSTGRES_PORT=${POSTGRES_PORT:-5433}
 
 echo "Waiting for Postgres to be ready..."
 until docker compose exec -T db pg_isready -U "$POSTGRES_USER" >/dev/null 2>&1; do
@@ -28,10 +29,11 @@ fi
 . .venv/bin/activate
 python -m pip install --upgrade pip setuptools wheel
 pip install -r requirements.txt
-pip install -e .
+# Try editable install; if it fails due to pyproject issues, continue and run tests with PYTHONPATH=.
+pip install -e . || echo "editable install failed, continuing with PYTHONPATH=."
 
 echo "Running alembic migrations"
-export DATABASE_URL="postgresql://$POSTGRES_USER:$POSTGRES_PASSWORD@127.0.0.1:5432/$POSTGRES_DB"
+export DATABASE_URL="postgresql://$POSTGRES_USER:$POSTGRES_PASSWORD@127.0.0.1:$POSTGRES_PORT/$POSTGRES_DB"
 alembic -c alembic.ini upgrade head
 
 echo "Seeding DB (if seed file exists)"

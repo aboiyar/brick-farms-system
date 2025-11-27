@@ -38,6 +38,9 @@ From the `backend/` directory:
 - Run local integration (requires Docker):
 	./scripts/run_integration_local.sh
 
+- Run developer local env (recommended):
+	./scripts/dev_start.sh
+
 - Trigger CI workflow (requires GITHUB_TOKEN env var):
 	GITHUB_TOKEN=xxx ./scripts/trigger_ci.sh
 
