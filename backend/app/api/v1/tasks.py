@@ -32,7 +32,8 @@ class ObservationCreateIn(BaseModel):
 
 @router.post("/tasks")
 async def create_task(payload: TaskCreateIn, ctx=Depends(tenant_scoped_user)):
-    token, db: AsyncSession = ctx
+    token, db = ctx
+    db: AsyncSession  # Type hint for IDE
     if payload.lat is not None and payload.lng is not None:
         q = text("""
         INSERT INTO task (tenant_id, workorder_id, title, assignee_id, status, location, gps_accuracy_m, created_at, due_at, meta)
@@ -57,7 +58,8 @@ async def create_task(payload: TaskCreateIn, ctx=Depends(tenant_scoped_user)):
 
 @router.post("/observations")
 async def create_observation_json(payload: ObservationCreateIn, ctx=Depends(tenant_scoped_user)):
-    token, db: AsyncSession = ctx
+    token, db = ctx
+    db: AsyncSession  # Type hint for IDE
     q = text("""
     INSERT INTO observation (tenant_id, plot_id, task_id, observer_id, ts, notes, metrics, location)
     VALUES (:tid, :plot, :task, :obs, now(), :notes::text, :metrics::jsonb,
@@ -81,7 +83,8 @@ async def create_observation_multipart(
     files: Optional[List[UploadFile]] = File(None),
     ctx=Depends(tenant_scoped_user)
 ):
-    token, db: AsyncSession = ctx
+    token, db = ctx
+    db: AsyncSession  # Type hint for IDE
     metrics_obj = json.loads(metrics or "{}")
     q = text("""
     INSERT INTO observation (tenant_id, plot_id, task_id, observer_id, ts, notes, metrics, location)
@@ -116,7 +119,7 @@ async def create_observation_multipart(
 # GET tasks with filters
 from typing import List, Optional
 from uuid import UUID
-from app.api.v1.schemas.task import TaskOut as TaskOutSchema
+from app.schemas.tasks import TaskOut as TaskOutSchema
 from app.models.tasking import Task as TaskModel, Task as TaskEnum
 from sqlalchemy import text as sql_text
 

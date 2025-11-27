@@ -4,7 +4,7 @@ import asyncio
 from typing import Tuple
 from app.db.session import AsyncSessionLocal
 from app.config import settings
-import aioredis
+from redis import asyncio as aioredis
 from sqlalchemy import text
 
 _redis = None
